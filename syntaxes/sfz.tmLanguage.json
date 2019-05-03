@@ -1,0 +1,2188 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "SFZ",
+	"patterns": [
+		{ "include": "#comment" },
+		{ "include": "#headers" },
+		{ "include": "#sfz1_sound-source" },
+		{ "include": "#sfz1_instrument-settings" },
+		{ "include": "#sfz1_region-logic" },
+		{ "include": "#sfz1_performance-parameters" },
+		{ "include": "#sfz1_modulation" },
+		{ "include": "#sfz1_effects" },
+		{ "include": "#sfz2-keywords" },
+		{ "include": "#sfzv2_sound-source" },
+		{ "include": "#sfzv2_instrument-settings" },
+		{ "include": "#sfzv2_region-logic" },
+		{ "include": "#sfzv2_performance-parameters" },
+		{ "include": "#sfzv2_modulation" },
+		{ "include": "#sfzv2_curves" },
+		{ "include": "#aria_instrument-settings" },
+		{ "include": "#aria_region-logic" },
+		{ "include": "#aria_performance-parameters" },
+		{ "include": "#aria_modulation" },
+		{ "include": "#aria_curves" },
+		{ "include": "#aria_effects" }
+	],
+	"repository": {
+		"comment": {
+			"patterns": [
+				{
+					"name": "comment.block.sfz",
+					"begin": "/\\*",
+					"beginCaptures": {
+						"0": { "name": "punctuation.definition.comment.sfz" }
+					},
+					"end": "\\*/",
+					"endCaptures": {
+						"0": { "name": "punctuation.definition.comment.sfz" }
+					}
+				},
+				{
+					"name": "comment.line.double-slash.sfz",
+					"begin": "([\\s]+)?((//)(?:\\s*(?=\\s|$))?)",
+					"beginCaptures": {
+						"1": { "name": "punctuation.whitespace.comment.leading.sfz" },
+						"2": { "name": "comment.line.double-slash.sfz" },
+						"3": { "name": "punctuation.definition.comment.sfz" }
+					},
+					"end": "(?=$)"
+				}
+			]
+		},
+		"headers": {
+		"patterns": [
+			{ "comment": "Headers",
+			"name": "meta.structure.header.$2.start.sfz",
+			"match": "(<)(control|global|master|group|region|curve|effect|midi)(>)",
+			"captures": {
+				"1": { "name": "punctuation.definition.tag.begin.sfz" },
+				"2": { "name": "keyword.control.$2.sfz" },
+				"3": { "name": "punctuation.definition.tag.begin.sfz" }
+			}
+			},
+			{ "comment": "Non-compliant headers",
+				"name": "invalid.sfz",
+				"match": "<.*(?!(control|global|master|group|region|curve|effect|midi))>"
+			}
+		]
+		},
+		"sfz1_sound-source": {
+			"patterns": [
+				{ "comment": "opcodes: (sample): (any string)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(sample)(=?)",
+					"beginCaptures": {
+						"1": { "name": "variable.language.sound-source.$1.sfz" },
+						"2": { "name": "keyword.operator.assignment.sfz" }
+					},
+					"end": "(?=(\\s\/\/|$))",
+					"contentName": "string.unquoted.sfz"
+				},
+				{ "comment": "opcodes: (delay|delay_random|delay_onccN): (0 to 100 percent)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(delay(?:_random|_oncc(?:\\d{1,3}))?)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.sound-source.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#float_0-100" }
+					]
+				},
+				{ "comment": "opcodes: (offset|offset_random|offset_onccN): (0 to 4294967296 sample units)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(offset(?:_random|_oncc(?:\\d{1,3}))?)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.sound-source.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#int_positive" }
+					]
+				},
+				{ "comment": "opcodes: (end): (-1 to 4294967296 sample units)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(end)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.sound-source.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#int_positive_or_neg1" }
+					]
+				},
+				{ "comment": "opcodes: (count): (0 to 4294967296 loops)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(count)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.sound-source.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#int_positive" }
+					]
+				},
+				{ "comment": "opcodes: (loop_mode): (no_loop|one_shot|loop_continuous|loop_sustain)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(loop_mode)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.sound-source.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#string_loop_mode" }
+					]
+				},
+				{ "comment": "opcodes: (loop_start|loop_end): (0 to 4294967296 sample units)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(loop_start|loop_end)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.sound-source.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#int_positive" }
+					]
+				},
+				{ "comment": "opcodes: (sync_beats|sync_offset): (0 to 32 beats)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(sync_beats|sync_offset)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.sound-source.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#float_0-32" }
+					]
+				}
+			]
+		},
+		"sfz1_instrument-settings": {
+			"patterns": [
+				{ "comment": "opcodes: (group|polyphony_group|off_by): (0 to 4294967296 sample units)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(group|polyphony_group|off_by)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.instrument-settings.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#int_positive" }
+					]
+				},
+				{ "comment": "opcodes: (off_mode): (fast|normal)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(off_mode)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.instrument-settings.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#string_fast-normal-time" }
+					]
+				},
+				{ "comment": "opcodes: (output): (0 to 1024 MIDI Nodes)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(output)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.instrument-settings.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#int_0-1024" }
+					]
+				}
+			]
+		},
+		"sfz1_region-logic": {
+			"patterns": [
+				{ "comment": "opcodes: (key|lokey|hikey): (0 to 127 MIDI Note or C-1 to G#9 Note)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(key|lokey|hikey)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.region-logic.key-mapping.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#int_0-127_or_string_note" }
+					]
+				},
+				{ "comment": "opcodes: (love|hivel): (0 to 127 MIDI Velocity)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(lovel|hivel)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.region-logic.key-mapping.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#int_0-127" }
+					]
+				},
+				{ "comment": "opcodes: (lochan|hichan): (1 to 16 MIDI Channel)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(lochan|hichan)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.region-logic.midi-conditions.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#int_1-16" }
+					]
+				},
+				{ "comment": "opcodes: (loccN|hiccN): (0 to 127 MIDI Controller)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b((?:lo|hi)cc(?:\\d{1,3})?)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.region-logic.midi-conditions.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#int_0-127" }
+					]
+				},
+				{ "comment": "opcodes: (lobend|hibend): (-8192 to 8192 cents)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(lobend|hibend)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.region-logic.midi-conditions.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#int_neg8192-8192" }
+					]
+				},
+				{ "comment": "opcodes: (sw_lokey|sw_hikey|sw_last|sw_down|sw_up|sw_previous): (0 to 127 MIDI Note or C-1 to G#9 Note)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(sw_(?:lokey|hikey|last|down|up|previous))\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.region-logic.midi-conditions.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#int_0-127_or_string_note" }
+					]
+				},
+				{ "comment": "opcodes: (sw_vel): (current|previous)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(sw_vel)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.region-logic.midi-conditions.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#string_current-previous" }
+					]
+				},
+				{ "comment": "opcodes: (lobpm|hibpm): (0 to 500 BPM)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(lobpm|hibpm)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.region-logic.internal-conditions.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#float_0-500" }
+					]
+				},
+				{ "comment": "opcodes: (lochanaft|hichanaft|lopolyaft|hipolyaft): (0 to 127 MIDI Controller)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(lochanaft|hichanaft|lopolyaft|hipolyaft)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.region-logic.internal-conditions.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#int_0-127" }
+					]
+				},
+				{ "comment": "opcodes: (lorand|hirand): (0 to 1 float)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(lorand|hirand)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.region-logic.internal-conditions.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#float_0-1" }
+					]
+				},
+				{ "comment": "opcodes: (seq_length|seq_position): (1 to 100 beats)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(seq_length|seq_position)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.region-logic.internal-conditions.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#int_1-100" }
+					]
+				},
+				{ "comment": "opcodes: (trigger): (attack|release|first|legato)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(trigger)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.region-logic.triggers.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#string_attack-release-first-legato" }
+					]
+				},
+				{ "comment": "opcodes: (on_loccN|on_hiccN): (-1 to 127 MIDI Controller)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(on_(?:lo|hi)cc(?:\\d{1,3})?)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.region-logic.triggers.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#int_neg1-127" }
+					]
+				}
+			]
+		},
+		"sfz1_performance-parameters": {
+			"patterns": [
+				{ "comment": "opcodes: (pan|position|width|amp_veltrack): (-100 to 100 percent)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(pan|position|width|amp_veltrack)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.performance-parameters.amplifier.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#float_neg100-100" }
+					]
+				},
+				{ "comment": "opcodes: (volume): (-144 to 6 dB)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(volume)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.performance-parameters.amplifier.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#float_neg144-6" }
+					]
+				},
+				{ "comment": "opcodes: (amp_keycenter): (0 to 127 MIDI Note or C-1 to G#9 Note)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(amp_keycenter)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.performance-parameters.amplifier.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#int_0-127_or_string_note" }
+					]
+				},
+				{ "comment": "opcodes: (amp_keytrack): (-96 to 12 dB)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(amp_keytrack)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.performance-parameters.amplifier.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#float_neg96-12" }
+					]
+				},
+				{ "comment": "opcodes: (amp_velcurve_N): (0 to 1 curve)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(amp_velcurve_(?:\\d{1,3})?)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.performance-parameters.amplifier.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#float_0-1" }
+					]
+				},
+				{ "comment": "opcodes: (amp_random): (0 to 24 dB)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(amp_random)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.performance-parameters.amplifier.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#float_0-24" }
+					]
+				},
+				{ "comment": "opcodes: (gain_onccN): (-144 to 48 dB)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(gain_oncc(?:\\d{1,3})?)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.performance-parameters.amplifier.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#float_neg144-48" }
+					]
+				},
+				{ "comment": "opcodes: (rt_decay): (0 to 200 dB)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(rt_decay)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.performance-parameters.amplifier.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#float_0-200" }
+					]
+				},
+				{ "comment": "opcodes: (xf_cccurve|xf_keycurve|xf_velcurve): (gain|power)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(xf_cccurve|xf_keycurve|xf_velcurve)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.performance-parameters.amplifier.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#string_gain-power" }
+					]
+				},
+				{ "comment": "opcodes: (xfin_loccN|xfin_hiccN|xfout_loccN|xfout_hiccN|xfin_lokey|xfin_hikey|xfout_lokey|xfout_hikey|xfin_lovel|xfin_hivel|xfout_lovel|xfout_hivel): (0 to 127 MIDI Velocity)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(xfin_locc(?:\\d{1,3})?|xfin_hicc(?:\\d{1,3})?|xfout_locc(?:\\d{1,3})?|xfout_hicc(?:\\d{1,3})?|xfin_lokey|xfin_hikey|xfout_lokey|xfout_hikey|xfin_lovel|xfin_hivel|xfout_lovel|xfout_hivel)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.performance-parameters.amplifier.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#int_0-127" }
+					]
+				},
+				{ "comment": "opcodes: (xfin_lokey|xfin_hikey|xfout_lokey|xfout_hikey): (0 to 127 MIDI Note or C-1 to G#9 Note)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(xfin_lokey|xfin_hikey|xfout_lokey|xfout_hikey)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.performance-parameters.amplifier.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#int_0-127_or_string_note" }
+					]
+				},
+				{ "comment": "opcodes: (bend_up|bend_down|pitch_veltrack): (-9600 to 9600 cents)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(bend_up|bend_down|pitch_veltrack)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.performance-parameters.pitch.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#int_neg9600-9600" }
+					]
+				},
+				{ "comment": "opcodes: (bend_step): (1 to 1200 cents)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(bend_step)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.performance-parameters.pitch.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#int_1-1200" }
+					]
+				},
+				{ "comment": "opcodes: (pitch_keycenter): (0 to 127 MIDI Note)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(pitch_keycenter)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.performance-parameters.pitch.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#int_0-127_or_string_note" }
+					]
+				},
+				{ "comment": "opcodes: (pitch_keytrack): (-1200 to 1200 cents)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(pitch_keytrack)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.performance-parameters.pitch.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#int_neg1200-1200" }
+					]
+				},
+				{ "comment": "opcodes: (pitch_random): (0 to 9600 cents)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(pitch_random)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.performance-parameters.pitch.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#int_0-9600" }
+					]
+				},
+				{ "comment": "opcodes: (transpose): (-127 to 127 MIDI Note)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(transpose)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.performance-parameters.pitch.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#int_neg127-127" }
+					]
+				},
+				{ "comment": "opcodes: (tune): (-2400 to 2400 cents)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(tune)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.performance-parameters.pitch.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#int_neg9600-9600" }
+					]
+				},
+				{ "comment": "opcodes: (cutoff): (0 to arbitrary Hz)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(cutoff)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.performance-parameters.filters.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#float_positive" }
+					]
+				},
+				{ "comment": "opcodes: (cutoff_onccN|cutoff_chanaft|cutoff_polyaft): (-9600 to 9600 cents)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(cutoff_oncc(?:\\d{1,3})?|cutoff_chanaft|cutoff_polyaft)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.performance-parameters.filters.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#int_neg9600-9600" }
+					]
+				},
+				{ "comment": "opcodes: (fil_keytrack): (0 to 1200 cents)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(fil_keytrack)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.performance-parameters.filters.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#int_0-1200" }
+					]
+				},
+				{ "comment": "opcodes: (fil_keycenter): (0 to 127 MIDI Note)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(fil_keycenter)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.performance-parameters.filters.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#int_0-127_or_string_note" }
+					]
+				},
+				{ "comment": "opcodes: (fil_random): (0 to 9600 cents)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(fil_random)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.performance-parameters.filters.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#int_0-9600" }
+					]
+				},
+				{ "comment": "opcodes: (fil_type): (lpf_1p|hpf_1p|lpf_2p|hpf_2p|bpf_2p|brf_2p)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(fil_type)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.performance-parameters.filters.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#string_lpf-hpf-bpf-brf" }
+					]
+				},
+				{ "comment": "opcodes: (fil_veltrack): (-9600 to 9600 cents)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(fil_veltrack)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.performance-parameters.filters.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#int_neg9600-9600" }
+					]
+				},
+				{ "comment": "opcodes: (resonance): (0 to 40 dB)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(resonance)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.performance-parameters.filters.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#float_0-40" }
+					]
+				},
+				{ "comment": "opcodes: (eq1_freq|eq2_freq|eq3_freq): (0 to 30000 Hz)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(eq1_freq|eq2_freq|eq3_freq)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.performance-parameters.eq.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#float_0-30000" }
+					]
+				},
+				{ "comment": "opcodes: (eq1_freq_onccN|eq2_freq_onccN|eq3_freq_onccN|eq1_vel2freq|eq2_vel2freq|eq3_vel2freq): (-30000 to 30000 Hz)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(eq[1-3]_freq_oncc(?:\\d{1,3})?|eq1_vel2freq|eq2_vel2freq|eq3_vel2freq)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.performance-parameters.eq.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#float_neg30000-30000" }
+					]
+				},
+				{ "comment": "opcodes: (eq1_bw|eq2_bw|eq3_bw): (0.0001 to 4 octaves)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(eq1_bw|eq2_bw|eq3_bw)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.performance-parameters.eq.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#float_0-4" }
+					]
+				},
+				{ "comment": "opcodes: (eq1_bw_onccN|eq2_bw_onccN|eq3_bw_onccN|eq1_vel2bw|eq2_vel2bw|eq3_vel2bw): (-30000 to 30000 Hz)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(eq[1-3]_bw_oncc(?:\\d{1,3})?|eq1_vel2bw|eq2_vel2bw|eq3_vel2bw)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.performance-parameters.eq.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#float_neg4-4" }
+					]
+				},
+				{ "comment": "opcodes: (eq1_gain|eq2_gain|eq3_gain|eq1_gain_onccN|eq2_gain_onccN|eq3_gain_onccN|eq1_vel2gain|eq2_vel2gain|eq3_vel2gain): (-96 to 24 dB)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(eq[1-3]_(vel2)?gain|eq[1-3]_gain_oncc(?:\\d{1,3})?)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.performance-parameters.eq.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#float_neg96-24" }
+					]
+				}
+			]
+		},
+		"sfz1_modulation": {
+			"patterns": [
+				{ "comment": "opcodes: (ampeg_vel2sustain|fileg_vel2sustain|ampeg_sustain_onccN): (-100 to 100 percent)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(ampeg_vel2sustain|fileg_vel2sustain|ampeg_sustain_oncc(?:\\d{1,3})?)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.modulation.envelope-generators.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#float_neg100-100" }
+					]
+				},
+				{ "comment": "opcodes: (ampeg_delay_onccN|ampeg_attack_onccN|ampeg_hold_onccN|ampeg_decay_onccN|ampeg_release_onccN|ampeg_vel2delay|ampeg_vel2attack|ampeg_vel2hold|ampeg_vel2decay|ampeg_vel2release|pitcheg_vel2delay|pitcheg_vel2attack|pitcheg_vel2hold|pitcheg_vel2decay|pitcheg_vel2release|fileg_vel2delay|fileg_vel2attack|fileg_vel2hold|fileg_vel2decay|fileg_vel2release): (-100 to 100 seconds)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(ampeg_delay_oncc(?:\\d{1,3})?|ampeg_attack_oncc(?:\\d{1,3})?|ampeg_hold_oncc(?:\\d{1,3})?|ampeg_decay_oncc(?:\\d{1,3})?|ampeg_release_oncc(?:\\d{1,3})?|ampeg_vel2delay|ampeg_vel2attack|ampeg_vel2hold|ampeg_vel2decay|ampeg_vel2release|pitcheg_vel2delay|pitcheg_vel2attack|pitcheg_vel2hold|pitcheg_vel2decay|pitcheg_vel2release|fileg_vel2delay|fileg_vel2attack|fileg_vel2hold|fileg_vel2decay|fileg_vel2release)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.modulation.envelope-generators.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#float_neg100-100" }
+					]
+				},
+				{ "comment": "opcodes: (pitcheg_depth|fileg_depth|pitcheg_vel2depth|fileg_vel2depth): (-12000 to 12000 cents)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(pitcheg_depth|fileg_depth|pitcheg_vel2depth|fileg_vel2depth)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.modulation.envelope-generators.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#int_neg12000-12000" }
+					]
+				},
+				{ "comment": "opcodes: (ampeg_start|ampeg_sustain|pitcheg_start|pitcheg_sustain|fileg_start|fileg_sustain): (0 to 100 percent)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(ampeg_start|ampeg_sustain|pitcheg_start|pitcheg_sustain|fileg_start|fileg_sustain)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.modulation.envelope-generators.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#float_0-100" }
+					]
+				},
+				{ "comment": "opcodes: (ampeg_delay|ampeg_attack|ampeg_hold|ampeg_decay|ampeg_release|pitcheg_delay|pitcheg_attack|pitcheg_hold|pitcheg_decay|pitcheg_release|fileg_delay|fileg_attack|fileg_hold|fileg_decay|fileg_release): (0 to 100 seconds)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(ampeg_delay|ampeg_attack|ampeg_hold|ampeg_decay|ampeg_release|pitcheg_delay|pitcheg_attack|pitcheg_hold|pitcheg_decay|pitcheg_release|fileg_delay|fileg_attack|fileg_hold|fileg_decay|fileg_release)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.modulation.envelope-generators.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#float_0-100" }
+					]
+				},
+				{ "comment": "opcodes: (amplfo_depth|amplfo_depthccN|amplfo_depthchanaft|amplfo_depthpolyaft): (-10 to 10 dB)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(amplfo_depth|amplfo_depthcc(?:\\d{1,3})?|amplfo_depthchanaft|amplfo_depthpolyaft)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.modulation.lfo.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#float_neg10-10" }
+					]
+				},
+				{ "comment": "opcodes: (pitchlfo_depth|pitchlfo_depthccN|pitchlfo_depthchanaft|pitchlfo_depthpolyaft|fillfo_depth|fillfo_depthccN|fillfo_depthchanaft|fillfo_depthpolyaft): (-1200 to 1200 cents)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(pitchlfo_depth|pitchlfo_depthcc(?:\\d{1,3})?|pitchlfo_depthchanaft|pitchlfo_depthpolyaft|fillfo_depth|fillfo_depthcc(?:\\d{1,3})?|fillfo_depthchanaft|fillfo_depthpolyaft)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.modulation.lfo.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#int_neg1200-1200" }
+					]
+				},
+				{ "comment": "opcodes: (amplfo_freqccN|amplfo_freqchanaft|amplfo_freqpolyaft|pitchlfo_freqccN|pitchlfo_freqchanaft|pitchlfo_freqpolyaft|fillfo_freqccN|fillfo_freqchanaft|fillfo_freqpolyaft): (-200 to 200 Hz)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(amplfo_freqcc(?:\\d{1,3})?|amplfo_freqchanaft|amplfo_freqpolyaft|pitchlfo_freqcc(?:\\d{1,3})?|pitchlfo_freqchanaft|pitchlfo_freqpolyaft|fillfo_freqcc(?:\\d{1,3})?|fillfo_freqchanaft|fillfo_freqpolyaft)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.modulation.lfo.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#float_neg200-200" }
+					]
+				},
+				{ "comment": "opcodes: (amplfo_delay|amplfo_fade|pitchlfo_delay|pitchlfo_fade|fillfo_delay|fillfo_fade): (0 to 100 seconds)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(amplfo_delay|amplfo_fade|pitchlfo_delay|pitchlfo_fade|fillfo_delay|fillfo_fade)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.modulation.lfo.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#float_0-100" }
+					]
+				},
+				{ "comment": "opcodes: (amplfo_freq|pitchlfo_freq|fillfo_freq): (0 to 20 Hz)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(amplfo_freq|pitchlfo_freq|fillfo_freq)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.modulation.lfo.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#float_0-20" }
+					]
+				}
+			]
+		},
+		"sfz1_effects": {
+			"patterns": [
+				{ "comment": "opcodes: (effect1|effect2): (0 to 100 percent)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(effect1|effect2)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.effects.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#float_0-100" }
+					]
+				}
+			]
+		},
+		"sfz2-keywords": {
+			"patterns": [
+				{ "comment": "#define statement",
+					"match": "((\\#define)\\s+((\\$)[^\\s]+)\\s+(.+))\\b",
+					"captures": {
+						"1": { "name": "meta.generic.define.sfz" },
+						"2": { "name": "meta.preprocessor.define.sfz" },
+						"3": { "name": "meta.preprocessor.string.sfz" },
+						"4": { "name": "punctuation.definition.variable.sfz" },
+						"5": { "name": "meta.preprocessor.string.sfz" }
+					}
+				},
+				{ "comment": "#include statement",
+					"match": "((\\#include)\\s+((\").+(?=\\.sfz)\\.sfzh?(\")))",
+					"captures": {
+						"1": { "name": "meta.generic.include.sfz" },
+						"2": { "name": "meta.preprocessor.import.sfz" },
+						"3": { "name": "meta.preprocessor.string.sfz" },
+						"4": { "name": "punctuation.definition.string.begin.sfz" },
+						"5": { "name": "punctuation.definition.string.end.sfz" }
+					}
+				},
+				{ "comment": "defined variable",
+					"match": "(\\$[^\\s\\=]+)",
+					"name": "variable.other.constant.sfz"
+				}
+			]
+		},
+		"sfzv2_sound-source": {
+			"patterns": [
+				{ "comment": "opcodes: (default_path): any string",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(default_path)(=?)",
+					"beginCaptures": {
+						"1": { "name": "variable.language.sound-source.$1.sfz" },
+						"2": { "name": "keyword.operator.assignment.sfz" }
+					},
+					"end": "(?=(\\s\/\/|$))",
+					"contentName": "string.unquoted.sfz"
+				},
+				{ "comment": "opcodes: (direction): (forward|reverse)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(direction)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.sound-source.sample-playback.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#string_forward-reverse" }
+					]
+				},
+				{ "comment": "opcodes: (loop_count): (0 to 4294967296 loops)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(loop_count)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.sound-source.sample-playback.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#int_positive" }
+					]
+				},
+				{ "comment": "opcodes: (loop_type): (forward|backward|alternate)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(loop_type)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.sound-source.sample-playback.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#string_forward-backward-alternate" }
+					]
+				},
+				{ "comment": "opcodes: (md5): (128-bit hex md5 hash)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(md5)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.sound-source.sample-playback.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#string_md5" }
+					]
+				}
+			]
+		},
+		"sfzv2_instrument-settings": {
+			"patterns": [
+				{ "comment": "opcodes: (octave_offset): (-10 to 10 octaves)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(octave_offset)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.instrument-settings.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#int_neg10-10" }
+					]
+				},
+				{ "comment": "opcodes: (region_label|label_ccN): (any string)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(region_label|label_cc(?:\\d{1,3})?)(=?)",
+					"beginCaptures": {
+						"1": { "name": "variable.language.instrument-settings.$1.sfz" },
+						"2": { "name": "keyword.operator.assignment.sfz" }
+					},
+					"end": "(?=(\\s\/\/|$))",
+					"contentName": "string.unquoted.sfz"
+				},
+				{ "comment": "opcodes: (set_ccN): (0 to 127 MIDI Controller)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(set_cc(?:\\d{1,3})?)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.instrument-settings.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#int_0-127" }
+					]
+				},
+				{ "comment": "opcodes: (polyphony|note_polyphony): (0 to 127 voices)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(polyphony|note_polyphony)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.instrument-settings.voice-lifecycle.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#int_0-127" }
+					]
+				},
+				{ "comment": "opcodes: (note_selfmask|rt_dead): (on|off)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(note_selfmask|rt_dead)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.instrument-settings.voice-lifecycle.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#string_on-off" }
+					]
+				}
+			]
+		},
+		"sfzv2_region-logic": {
+			"patterns": [
+				{ "comment": "opcodes: (sustain_sw|sostenuto_sw): (on|off)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(sustain_sw|sostenuto_sw)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.region-logic.midi-conditions.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#string_on-off" }
+					]
+				},
+				{ "comment": "opcodes: (loprog|hiprog): (0 to 127 MIDI program)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(loprog|hiprog)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.region-logic.midi-conditions.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#int_0-127" }
+					]
+				}
+			]
+		},
+		"sfzv2_performance-parameters": {
+			"patterns": [
+				{ "comment": "opcodes: (volume_onccN): (-144 to 6 dB)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(volume_oncc(?:\\d{1,3})?)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.performance-parameters.amplifier.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#float_neg144-6" }
+					]
+				},
+				{ "comment": "opcodes: (phase): (normal|invert)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(phase)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.performance-parameters.amplifier.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#string_normal-invert" }
+					]
+				},
+				{ "comment": "opcodes: (width_onccN): (-100 to 100 percent)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(width_oncc(?:\\d{1,3})?)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.performance-parameters.amplifier.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#float_neg100-100" }
+					]
+				},
+				{ "comment": "opcodes: (bend_smooth): (0 to 9600 cents)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(bend_smooth)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.performance-parameters.pitch.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#int_0-9600" }
+					]
+				},
+				{ "comment": "opcodes: (bend_stepup|bend_stepdown): (1 to 1200 cents)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(bend_stepup|bend_stepdown)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.performance-parameters.pitch.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#int_1-1200" }
+					]
+				},
+				{ "comment": "opcodes: (cutoff2|cutoff2_onccN): (0 to arbitrary Hz)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(cutoff2|cutoff2_oncc(?:\\d{1,3})?)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.performance-parameters.filters.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#float_positive" }
+					]
+				},
+				{ "comment": "opcodes: (resonance_onccN|resonance2|resonance2_onccN): (0 to 40 dB)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(resonance_oncc(?:\\d{1,3})?|resonance2|resonance2_oncc(?:\\d{1,3})?)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.performance-parameters.filters.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#float_0-40" }
+					]
+				},
+				{ "comment": "opcodes: (fil2_type): (lpf_1p|hpf_1p|lpf_2p|hpf_2p|bpf_2p|brf_2p)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(fil2_type)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.performance-parameters.filters.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#string_lpf-hpf-bpf-brf" }
+					]
+				}
+			]
+		},
+		"sfzv2_curves": {
+			"patterns": [
+				{ "comment": "opcodes: (vN): (0 to 1 number)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(v[0-9]{3})\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.curves.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#float_0-1" }
+					]
+				}
+			]
+		},
+		"aria_instrument-settings": {
+			"patterns": [
+				{ "comment": "opcodes: (hint_): (any number)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(hint_[A-z_]*)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.instrument-settings.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#float_any" }
+					]
+				},
+				{ "comment": "opcodes: (set_hdccN|lohdccN|hihdccN): (any number)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b((?:(set_|lo|hi))hdcc(?:\\d{1,3})?)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.instrument-settings.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#float_any" }
+					]
+				},
+				{ "comment": "opcodes: (sustain_cc|sostenuto_cc|sustain_lo|sostenuto_lo): (0 to 127 MIDI byte)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(sustain_cc|sostenuto_cc|sustain_lo|sostenuto_lo)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.instrument-settings.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#int_0-127" }
+					]
+				},
+				{ "comment": "opcodes: (sw_octave_offset): (-10 to 10 octaves)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(sw_octave_offset)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.instrument-settings.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#int_neg10-10" }
+					]
+				},
+				{ "comment": "opcodes: (off_curve): (0 to any curve)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(off_curve)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.instrument-settings.voice-lifecycle.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#int_positive" }
+					]
+				},
+				{ "comment": "opcodes: (off_shape|off_time): (-10 to 10 number)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(off_shape|off_time)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.instrument-settings.voice-lifecycle.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#float_neg10-10" }
+					]
+				}
+			]
+		},
+		"aria_region-logic": {
+			"patterns": [
+				{ "comment": "opcodes: (sw_default|sw_lolast|sw_hilast): (0 to 127 MIDI Note)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(sw_default|sw_lolast|sw_hilast)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.region-logic.midi-conditions.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#int_0-127" }
+					]
+				},
+				{ "comment": "opcodes: (sw_label): (any string)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(sw_label)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.region-logic.midi-conditions.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#string_any_continuous" }
+					]
+				},
+				{ "comment": "opcodes: (varNN_curveccX): (0 to any curve)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(var\\d{2}_curvecc(?:\\d{1,3})?)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.region-logic.midi-conditions.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#int_positive" }
+					]
+				},
+				{ "comment": "opcodes: (varNN_mod): (add|mult)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(var\\d{2}_mod)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.region-logic.midi-conditions.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#string_add-mult" }
+					]
+				},
+				{ "comment": "opcodes: (varNN_onccX|varNN_target): (any float)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(var\\d{2}_oncc(?:\\d{1,3})?|var\\d{2}_(pitch|cutoff|resonance|cutoff2|resonance2|eq[1-3]_freq|eq[1-3]_bw|eq[1-3]_gain|volume|amplitude|pan|width))\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.region-logic.midi-conditions.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#float_any" }
+					]
+				}
+			]
+		},
+		"aria_performance-parameters": {
+			"patterns": [
+				{ "comment": "opcodes: (amplitude|amplitude_onccN|global_amplitude|master_amplitude|group_amplitude): (0 to 100 percent)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(amplitude|amplitude_oncc(?:\\d{1,3})?|global_amplitude|master_amplitude|group_amplitude)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.performance-parameters.amplifier.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#float_0-100" }
+					]
+				},
+				{ "comment": "opcodes: (amplitude_curveccN): (any positive curve)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(amplitude_curvecc(?:\\d{1,3})?)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.performance-parameters.amplifier.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#int_positive" }
+					]
+				},
+				{ "comment": "opcodes: (amplitude_smoothccN): (0 to 9600 number)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(amplitude_smoothcc(?:\\d{1,3})?)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.performance-parameters.amplifier.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#int_0-9600" }
+					]
+				},
+				{ "comment": "opcodes: (pan_law): (balance|mma)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(pan_law)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.performance-parameters.amplifier.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#string_balance-mma" }
+					]
+				},
+				{ "comment": "opcodes: (global_volume|master_volume|group_volume|volume_onccN): (-144 to 6 dB)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(global_volume|master_volume|group_volume|volume_oncc(?:\\d{1,3})?)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.performance-parameters.amplifiers.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#float_neg144-6" }
+					]
+				}
+			]
+		},
+		"aria_modulation": {
+			"patterns": [
+				{ "comment": "opcodes: (ampeg_attack_shape|ampeg_decay_shape|ampeg_release_shape|egN_shapeX): (-10 to 10 float)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(ampeg_attack_shape|ampeg_decay_shape|ampeg_release_shape|eg\\d{2}_shape\\d+)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.modulation.envelope-generators.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#float_neg10-10" }
+					]
+				},
+				{ "comment": "opcodes: (ampeg_release_zero|ampeg_decay_zero): (true|false)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(ampeg_release_zero|ampeg_decay_zero)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.modulation.envelope-generators.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#string_on-off" }
+					]
+				},
+				{ "comment": "opcodes: (lfoN_offset|lfoN_offset2|lfoN_ratio|lfoN_ratio2|lfoN_scale|lfoN_scale2): (any float)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(lfo\\d{2}_(offset|ratio|scale)2?)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.modulation.lfo.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#float_any" }
+					]
+				},
+				{ "comment": "opcodes: (lfoN_wave|lfoN_wav2): (0 to 127 MIDI Number)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(lfo\\d{2}_wave2?)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.modulation.lfo.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#int_0-127" }
+					]
+				}
+			]
+		},
+		"aria_curves": {
+			"patterns": [
+				{ "comment": "opcodes: (curve_index): (any positive integer)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(curve_index)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.curves.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#int_positive" }
+					]
+				}
+			]
+		},
+		"aria_effects": {
+			"patterns": [
+				{ "comment": "opcodes: (param_offset): (any integer)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(param_offset)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.effects.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#int_any" }
+					]
+				},
+				{ "comment": "opcodes: (vendor_specific): (any to continuous string)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(vendor_specific)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.effects.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#string_any_continuous" }
+					]
+				}
+			]
+		},
+		"float_neg30000-30000": {
+			"patterns": [
+				{ 
+					"match": "(=)((?:-?)(?<!\\.)\\b(30000|([0-9]|[1-9][0-9]{1,3}|2[0-9]{4})(\\.\\d*)?)\\b)\\b",
+					"captures": {
+						"1": { "name": "keyword.operator.assignment.sfz" },
+						"2": { "name": "constant.numeric.float.sfz" }
+					}
+				},
+				{
+					"match": "(?!(=)((?:-?)(?<!\\.)\\b(30000|([0-9]|[1-9][0-9]{1,3}|2[0-9]{4})(\\.\\d*)?)\\b)\\b)[^\\s]*",
+					"name": "invalid.sfz"
+				}
+			]
+		},
+		"float_neg144-48": {
+			"patterns": [
+				{
+					"match": "(=)(-(?<!\\.)(144|([1-9]|[1-8][0-9]|9[0-9]|1[0-4][0-3])(\\.\\d*)?)\\b|\\b(?<!\\.)(48|([0-9]|[1-3][0-9]|4[0-7])(\\.\\d*)?)\\b)",
+					"captures": {
+						"1": { "name": "keyword.operator.assignment.sfz" },
+						"2": { "name": "constant.numeric.float.sfz" }
+					}
+				},
+				{
+					"match": "(?!=(-(?<!\\.)(144|([1-9]|[1-8][0-9]|9[0-9]|1[0-4][0-3])(\\.\\d*)?)\\b|\\b(?<!\\.)(48|([0-9]|[1-3][0-9]|4[0-7])(\\.\\d*)?)\\b)).*",
+					"name": "invalid.sfz"
+				}
+			]
+		},
+		"float_neg144-6": {
+			"patterns": [
+				{
+					"match": "(=)(-(?<!\\.)(144|([1-9]|[1-8][0-9]|9[0-9]|1[0-4][0-3])(\\.\\d*)?)\\b|\\b(?<!\\.)(6|([0-5](\\.\\d*)?)\\b))",
+					"captures": {
+						"1": { "name": "keyword.operator.assignment.sfz" },
+						"2": { "name": "constant.numeric.float.sfz" }
+					}
+				},
+				{
+					"match": "(?!=(-(?<!\\.)(144|([1-9]|[1-8][0-9]|9[0-9]|1[0-4][0-3])(\\.\\d*)?)\\b|\\b(?<!\\.)(6|([0-5](\\.\\d*)?)\\b))).*",
+					"name": "invalid.sfz"
+				}
+			]
+		},
+		"float_neg200-200": {
+			"patterns": [
+				{ 
+					"match": "(=)((?:-?)(?<!\\.)(200|([0-9]|[1-9][0-9]{1,2})(\\.\\d*)?))\\b",
+					"captures": {
+						"1": { "name": "keyword.operator.assignment.sfz" },
+						"2": { "name": "constant.numeric.float.sfz" }
+					}
+				},
+				{
+					"match": "(?!(=)((?:-?)(?<!\\.)(200|([0-9]|[1-9][0-9]{1,2})(\\.\\d*)?))\\b)[^\\s]*",
+					"name": "invalid.sfz"
+				}
+			]
+		},
+		"float_neg100-100": {
+			"patterns": [
+				{ 
+					"match": "(=)((?:-?)(?<!\\.)(100|([0-9]|[1-9][0-9])(\\.\\d*)?))\\b",
+					"captures": {
+						"1": { "name": "keyword.operator.assignment.sfz" },
+						"2": { "name": "constant.numeric.float.sfz" }
+					}
+				},
+				{
+					"match": "(?!(=)((?:-?)(?<!\\.)(100|([0-9]|[1-9][0-9])(\\.\\d*)?))\\b)[^\\s]*",
+					"name": "invalid.sfz"
+				}
+			]
+		},
+		"float_neg96-12": {
+			"patterns": [
+				{
+					"match": "(=)(-(?<!\\.)(96|([1-9]|[1-8][0-9]|9[0-5])(\\.\\d*)?)\\b|\\b(?<!\\.)(12|([0-9]|1[01](\\.\\d*)?)\\b))",
+					"captures": {
+						"1": { "name": "keyword.operator.assignment.sfz" },
+						"2": { "name": "constant.numeric.float.sfz" }
+					}
+				},
+				{
+					"match": "(?!=(-(?<!\\.)(96|([1-9]|[1-8][0-9]|9[0-5])(\\.\\d*)?)\\b|\\b(?<!\\.)(12|([0-9]|1[01](\\.\\d*)?)\\b))).*",
+					"name": "invalid.sfz"
+				}
+			]
+		},
+		"float_neg96-24": {
+			"patterns": [
+				{
+					"match": "(=)(-(?<!\\.)(96|([1-9]|[1-8][0-9]|9[0-5])(\\.\\d*)?)\\b|\\b(?<!\\.)(24|([0-9]|1[0-9]|2[0-3](\\.\\d*)?)\\b))",
+					"captures": {
+						"1": { "name": "keyword.operator.assignment.sfz" },
+						"2": { "name": "constant.numeric.float.sfz" }
+					}
+				},
+				{
+					"match": "(?!=(-(?<!\\.)(96|([1-9]|[1-8][0-9]|9[0-5])(\\.\\d*)?)\\b|\\b(?<!\\.)(24|([0-9]|1[0-9]|2[0-3](\\.\\d*)?)\\b))).*",
+					"name": "invalid.sfz"
+				}
+			]
+		},
+		"float_neg10-10": {
+			"patterns": [
+				{ 
+					"match": "(=)((?:-?)(?<!\\.)(10|([0-9])(\\.\\d*)?))\\b",
+					"captures": {
+						"1": { "name": "keyword.operator.assignment.sfz" },
+						"2": { "name": "constant.numeric.float.sfz" }
+					}
+				},
+				{
+					"match": "(?!(=)((?:-?)(?<!\\.)(10|([0-9])(\\.\\d*)?))\\b)[^\\s]*",
+					"name": "invalid.sfz"
+				}
+			]
+		},
+		"float_neg4-4": {
+			"patterns": [
+				{ 
+					"match": "(=)((?:-?)(?<!\\.)(4|([0-3])(\\.\\d*)?))\\b",
+					"captures": {
+						"1": { "name": "keyword.operator.assignment.sfz" },
+						"2": { "name": "constant.numeric.float.sfz" }
+					}
+				},
+				{
+					"match": "(?!(=)((?:-?)(?<!\\.)(4|([0-3])(\\.\\d*)?))\\b)[^\\s]*",
+					"name": "invalid.sfz"
+				}
+			]
+		},
+		"float_0-1": {
+			"patterns": [
+				{ 
+					"match": "(=)(?<!\\.)(1|(0)(\\.\\d*)?)\\b",
+					"captures": {
+						"1": { "name": "keyword.operator.assignment.sfz" },
+						"2": { "name": "constant.numeric.float.sfz" }
+					}
+				},
+				{
+					"match": "(?!(=)(?<!\\.)(1|(0)(\\.\\d*)?)\\b)[^\\s]*",
+					"name": "invalid.sfz"
+				}
+			]
+		},
+		"float_0-4": {
+			"patterns": [
+				{ 
+					"match": "(=)(?<!\\.)(4|([0-3])(\\.\\d*)?)\\b",
+					"captures": {
+						"1": { "name": "keyword.operator.assignment.sfz" },
+						"2": { "name": "constant.numeric.float.sfz" }
+					}
+				},
+				{
+					"match": "(?!(=)(?<!\\.)(4|([0-3])(\\.\\d*)?)\\b)[^\\s]*",
+					"name": "invalid.sfz"
+				}
+			]
+		},
+		"float_0-20": {
+			"patterns": [
+				{ 
+					"match": "(=)(?<!\\.)(20|([0-9]|1[0-9])(\\.\\d*)?)\\b",
+					"captures": {
+						"1": { "name": "keyword.operator.assignment.sfz" },
+						"2": { "name": "constant.numeric.float.sfz" }
+					}
+				},
+				{
+					"match": "(?!(=)(?<!\\.)(24|([0-9]|1[0-9])(\\.\\d*)?)\\b)[^\\s]*",
+					"name": "invalid.sfz"
+				}
+			]
+		},
+		"float_0-24": {
+			"patterns": [
+				{ 
+					"match": "(=)(?<!\\.)(24|([0-9]|1[0-9]|2[0-3])(\\.\\d*)?)\\b",
+					"captures": {
+						"1": { "name": "keyword.operator.assignment.sfz" },
+						"2": { "name": "constant.numeric.float.sfz" }
+					}
+				},
+				{
+					"match": "(?!(=)(?<!\\.)(24|([0-9]|1[0-9]|2[0-3])(\\.\\d*)?)\\b)[^\\s]*",
+					"name": "invalid.sfz"
+				}
+			]
+		},
+		"float_0-32": {
+			"patterns": [
+				{ 
+					"match": "(=)(?<!\\.)(32|([0-9]|1[0-9]|2[0-9]|3[0-1])(\\.\\d*)?)\\b",
+					"captures": {
+						"1": { "name": "keyword.operator.assignment.sfz" },
+						"2": { "name": "constant.numeric.float.sfz" }
+					}
+				},
+				{
+					"match": "(?!(=)(?<!\\.)(32|([0-9]|1[0-9]|2[0-9]|3[0-1])(\\.\\d*)?)\\b)[^\\s]*",
+					"name": "invalid.sfz"
+				}
+			]
+		},
+		"float_0-40": {
+			"patterns": [
+				{ 
+					"match": "(=)(?<!\\.)(40|([0-9]|[1-3][0-9])(\\.\\d*)?)\\b",
+					"captures": {
+						"1": { "name": "keyword.operator.assignment.sfz" },
+						"2": { "name": "constant.numeric.float.sfz" }
+					}
+				},
+				{
+					"match": "(?!(=)(?<!\\.)(40|([0-9]|[1-3][0-9])(\\.\\d*)?)\\b)[^\\s]*",
+					"name": "invalid.sfz"
+				}
+			]
+		},
+		"float_0-100": {
+			"patterns": [
+				{ 
+					"match": "(=)(?<!\\.)(100|([0-9]|[1-9][0-9])(\\.\\d*)?)\\b",
+					"captures": {
+						"1": { "name": "keyword.operator.assignment.sfz" },
+						"2": { "name": "constant.numeric.float.sfz" }
+					}
+				},
+				{
+					"match": "(?!(=)(?<!\\.)(100|([0-9]|[1-9][0-9])(\\.\\d*)?)\\b)[^\\s]*",
+					"name": "invalid.sfz"
+				}
+			]
+		},
+		"float_0-200": {
+			"patterns": [
+				{ 
+					"match": "(=)(?<!\\.)(200|([0-9]|[1-9][0-9]|1[0-9]{2})(\\.\\d*)?)\\b",
+					"captures": {
+						"1": { "name": "keyword.operator.assignment.sfz" },
+						"2": { "name": "constant.numeric.float.sfz" }
+					}
+				},
+				{
+					"match": "(?!(=)(?<!\\.)(200|([0-9]|[1-9][0-9]|1[0-9]{2})(\\.\\d*)?)\\b)[^\\s]*",
+					"name": "invalid.sfz"
+				}
+			]
+		},
+		"float_0-500": {
+			"patterns": [
+				{
+					"match": "(=)(?<!\\.)(500|([0-9]|[1-8][0-9]|9[0-9]|[1-4][0-9]{2})(\\.\\d*)?)\\b",
+					"captures": {
+						"1": { "name": "keyword.operator.assignment.sfz" },
+						"2": { "name": "constant.numeric.float.sfz" }
+					}
+				},
+				{
+					"match": "(?!(=)(?<!\\.)(500|([0-9]|[1-8][0-9]|9[0-9]|[1-4][0-9]{2})(\\.\\d*)?)\\b)[^\\s]*",
+					"name": "invalid.sfz"
+				}
+			]
+		},
+		"float_0-30000": {
+			"patterns": [
+				{
+					"match": "(=)(?<!\\.)\\b(30000|([0-9]|[1-9][0-9]{1,3}|2[0-9]{4})(\\.\\d*)?)\\b",
+					"captures": {
+						"1": { "name": "keyword.operator.assignment.sfz" },
+						"2": { "name": "constant.numeric.float.sfz" }
+					}
+				},
+				{
+					"match": "(?!(=)(?<!\\.)\\b(30000|([0-9]|[1-9][0-9]{1,3}|2[0-9]{4})(\\.\\d*)?)\\b)[^\\s]*",
+					"name": "invalid.sfz"
+				}
+			]
+		},
+		"float_positive": {
+			"patterns": [
+				{
+					"match": "(=)(\\d+(\\.\\d*)?)\\b",
+					"captures": {
+						"1": { "name": "keyword.operator.assignment.sfz" },
+						"2": { "name": "constant.numeric.float.sfz" }
+					}
+				},
+				{
+					"match": "(?!(=)(\\d+(\\.\\d*)?)\\b)[^\\s]*",
+					"name": "invalid.sfz"
+				}
+			]
+		},
+		"float_any": {
+			"patterns": [
+				{
+					"match": "(=)(-?\\b\\d+(\\.\\d*)?)\\b",
+					"captures": {
+						"1": { "name": "keyword.operator.assignment.sfz" },
+						"2": { "name": "constant.numeric.float.sfz" }
+					}
+				},
+				{
+					"match": "(?!(=)(-?\\b\\d+(\\.\\d*)?)\\b)[^\\s]*",
+					"name": "invalid.sfz"
+				}
+			]
+		},
+		"int_neg12000-12000": {
+			"patterns": [
+				{ 
+					"match": "(=)(-?\\b(12000|[0-9]|[1-9][0-9]{1,3}|1[01][0-9]{3}))\\b",
+					"captures": {
+						"1": { "name": "keyword.operator.assignment.sfz" },
+						"2": { "name": "constant.numeric.integer.sfz" }
+					}
+				},
+				{
+					"match": "(?!(=)(-?\\b(12000|[0-9]|[1-9][0-9]{1,3}|1[01][0-9]{3}))\\b)[^\\s]*",
+					"name": "invalid.sfz"
+				}
+			]
+		},
+		"int_neg9600-9600": {
+			"patterns": [
+				{ 
+					"match": "(=)(-?([0-9]|[1-9][0-9]{1,2}|[1-8][0-9]{3}|9[0-5][0-9]{2}|9600))\\b",
+					"captures": {
+						"1": { "name": "keyword.operator.assignment.sfz" },
+						"2": { "name": "constant.numeric.integer.sfz" }
+					}
+				},
+				{
+					"match": "(?!(=)(-?([0-9]|[1-9][0-9]{1,2}|[1-8][0-9]{3}|9[0-5][0-9]{2}|9600))\\b)[^\\s]*",
+					"name": "invalid.sfz"
+				}
+			]
+		},
+		"int_neg8192-8192": {
+			"patterns": [
+				{ 
+					"match": "(=)(-?([0-9]|[1-9][0-9]|[1-9][0-9]{2}|[1-7][0-9]{3}|80[0-9]{2}|81[0-8][0-9]|819[0-2]))\\b",
+					"captures": {
+						"1": { "name": "keyword.operator.assignment.sfz" },
+						"2": { "name": "constant.numeric.integer.sfz" }
+					}
+				},
+				{
+					"match": "(?!(=)(-?([0-9]|[1-9][0-9]|[1-9][0-9]{2}|[1-7][0-9]{3}|80[0-9]{2}|81[0-8][0-9]|819[0-2]))\\b)[^\\s]*",
+					"name": "invalid.sfz"
+				}
+			]
+		},
+		"int_neg1200-1200": {
+			"patterns": [
+				{ 
+					"match": "(=)(-?\\b(1200|[0-9]|[1-9][0-9]{1,2}|1[01][0-9]{2}))\\b",
+					"captures": {
+						"1": { "name": "keyword.operator.assignment.sfz" },
+						"2": { "name": "constant.numeric.integer.sfz" }
+					}
+				},
+				{
+					"match": "(?!(=)(-?\\b(1200|[0-9]|[1-9][0-9]{1,2}|1[01][0-9]{2}))\\b)[^\\s]*",
+					"name": "invalid.sfz"
+				}
+			]
+		},
+		"int_neg100-100": {
+			"patterns": [
+				{ 
+					"match": "(=)(-?\\b(100|[0-9]|[1-9][0-9]))\\b",
+					"captures": {
+						"1": { "name": "keyword.operator.assignment.sfz" },
+						"2": { "name": "constant.numeric.integer.sfz" }
+					}
+				},
+				{
+					"match": "(?!(=)(-?\\b(100|[0-9]|[1-9][0-9]))\\b)[^\\s]*",
+					"name": "invalid.sfz"
+				}
+			]
+		},
+		"int_neg10-10": {
+			"patterns": [
+				{ 
+					"match": "(=)(-?\\b(10|[0-9]))\\b",
+					"captures": {
+						"1": { "name": "keyword.operator.assignment.sfz" },
+						"2": { "name": "constant.numeric.integer.sfz" }
+					}
+				},
+				{
+					"match": "(?!(=)(-?\\b(10|[0-9]))\\b)[^\\s]*",
+					"name": "invalid.sfz"
+				}
+			]
+		},
+		"int_neg1-127": {
+			"patterns": [
+				{ 
+					"match": "(=)(-1|[0-9]|[1-8][0-9]|9[0-9]|1[01][0-9]|12[0-7])\\b",
+					"captures": {
+						"1": { "name": "keyword.operator.assignment.sfz" },
+						"2": { "name": "constant.numeric.integer.sfz" }
+					}
+				},
+				{
+					"match": "(?!(=)(-1|[0-9]|[1-8][0-9]|9[0-9]|1[01][0-9]|12[0-7])\\b)[^\\s]*",
+					"name": "invalid.sfz"
+				}
+			]
+		},
+		"int_neg127-127": {
+			"patterns": [
+				{ 
+					"match": "(=)(-?\\b([0-9]|[1-8][0-9]|9[0-9]|1[01][0-9]|12[0-7]))\\b",
+					"captures": {
+						"1": { "name": "keyword.operator.assignment.sfz" },
+						"2": { "name": "constant.numeric.integer.sfz" }
+					}
+				},
+				{
+					"match": "(?!(=)(-?\\b([0-9]|[1-8][0-9]|9[0-9]|1[01][0-9]|12[0-7]))\\b)[^\\s]*",
+					"name": "invalid.sfz"
+				}
+			]
+		},
+		"int_0-127": {
+			"patterns": [
+				{ 
+					"match": "(=)([0-9]|[1-8][0-9]|9[0-9]|1[01][0-9]|12[0-7])\\b",
+					"captures": {
+						"1": { "name": "keyword.operator.assignment.sfz" },
+						"2": { "name": "constant.numeric.integer.sfz" }
+					}
+				},
+				{
+					"match": "(?!(=)([0-9]|[1-8][0-9]|9[0-9]|1[01][0-9]|12[0-7])\\b)[^\\s]*",
+					"name": "invalid.sfz"
+				}
+			]
+		},
+		"int_0-127_or_string_note": {
+			"patterns": [
+				{ 
+					"match": "(=)(([0-9]|[1-8][0-9]|9[0-9]|1[01][0-9]|12[0-7])|[cdefgabCDEFGAB]\\#?(-1|[0-9]))\\b",
+					"captures": {
+						"1": { "name": "keyword.operator.assignment.sfz" },
+						"2": { "name": "constant.numeric.integer.sfz" }
+					}
+				},
+				{
+					"match": "(?!(=)(([0-9]|[1-8][0-9]|9[0-9]|1[01][0-9]|12[0-7])|[cdefgabCDEFGAB]\\#?(-1|[0-9]))\\b)[^\\s]*",
+					"name": "invalid.sfz"
+				}
+			]
+		},
+		"int_0-1024": {
+			"patterns": [
+				{ 
+					"match": "(=)([0-9]|[1-9][0-9]|[1-9][0-9]{2}|10[01][0-9]|102[0-4])\\b",
+					"name": "constant.numeric.integer.sfz"
+				},
+				{
+					"match": "(?!(=)([0-9]|[1-9][0-9]|[1-9][0-9]{2}|10[01][0-9]|102[0-4])\\b)[^\\s]*",
+					"name": "invalid.sfz"
+				}
+			]
+		},
+		"int_0-1200": {
+			"patterns": [
+				{ 
+					"match": "(=)(1200|[0-9]|[1-9][0-9]{1,2}|1[01][0-9{2}])\\b",
+					"captures": {
+						"1": { "name": "keyword.operator.assignment.sfz" },
+						"2": { "name": "constant.numeric.integer.sfz" }
+					}
+				},
+				{
+					"match": "(?!(=)(1200|[0-9]|[1-9][0-9]{1,2}|1[01][0-9]{2}])\\b)[^\\s]*",
+					"name": "invalid.sfz"
+				}
+			]
+		},
+		"int_0-9600": {
+			"patterns": [
+				{ 
+					"match": "(=)([0-9]|[1-9][0-9]{1,2}|[1-8][0-9]{3}|9[0-5][0-9]{2}|9600)\\b",
+					"captures": {
+						"1": { "name": "keyword.operator.assignment.sfz" },
+						"2": { "name": "constant.numeric.integer.sfz" }
+					}
+				},
+				{
+					"match": "(?!(=)([0-9]|[1-9][0-9]{1,2}|[1-8][0-9]{3}|9[0-5][0-9]{2}|9600)\\b)[^\\s]*",
+					"name": "invalid.sfz"
+				}
+			]
+		},
+		"int_1-16": {
+			"patterns": [
+				{ 
+					"match": "(=)([1-9]|1[0-6])\\b",
+					"name": "constant.numeric.integer.sfz"
+				},
+				{
+					"match": "(?!(=)([1-9]|1[0-6])\\b)[^\\s]*",
+					"name": "invalid.sfz"
+				}
+			]
+		},
+		"int_1-100": {
+			"patterns": [
+				{ 
+					"match": "(=)(100|[1-9]|[1-9][0-9])\\b",
+					"name": "constant.numeric.integer.sfz"
+				},
+				{
+					"match": "(?!(=)(100|[1-9]|[1-9][0-9])\\b)[^\\s]*",
+					"name": "invalid.sfz"
+				}
+			]
+		},
+		"int_1-1200": {
+			"patterns": [
+				{ 
+					"match": "(=)(1200|[0-9]|[1-9][0-9]{1,2}|1[01][0-9]{2})\\b",
+					"name": "constant.numeric.integer.sfz"
+				},
+				{
+					"match": "(?!(=)(1200|[0-9]|[1-9][0-9]{1,2}|1[01][0-9]{2})\\b)[^\\s]*",
+					"name": "invalid.sfz"
+				}
+			]
+		},
+		"int_positive": {
+			"patterns": [
+				{
+					"match": "(=)(\\d+)\\b",
+					"captures": {
+						"1": { "name": "keyword.operator.assignment.sfz" },
+						"2": { "name": "constant.numeric.integer.sfz" }
+					}
+				},
+				{
+				"match": "((?!(\\d+)).)*$",
+				"name": "invalid.sfz"
+				}
+			]
+		},
+		"int_positive_or_neg1": {
+			"patterns": [
+				{
+					"match": "(=)(-1|\\d+)\\b",
+					"captures": {
+						"1": { "name": "keyword.operator.assignment.sfz" },
+						"2": { "name": "constant.numeric.integer.sfz" }
+					}
+				},
+				{
+				"match": "((?!(-1|\\d+)\\b).)*$",
+				"name": "invalid.sfz"
+				}
+			]
+		},
+		"int_any": {
+			"patterns": [
+				{
+					"match": "(=)(-?\\b\\d+)\\b",
+					"captures": {
+						"1": { "name": "keyword.operator.assignment.sfz" },
+						"2": { "name": "constant.numeric.integer.sfz" }
+					}
+				},
+				{
+				"match": "((?!(-?\\b\\d+)).)*$",
+				"name": "invalid.sfz"
+				}
+			]
+		},
+		"string_add-mult": {
+			"patterns": [
+				{
+				"match": "(=)(add|mult)\\b",
+				"captures": {
+					"1": { "name": "keyword.operator.assignment.sfz" },
+					"2": { "name": "string.unquoted.sfz" }
+				}
+				},
+				{
+				"match": "(?!=(add|mult)).*",
+				"name": "invalid.sfz"
+				}
+			]
+		},
+		"string_attack-release-first-legato": {
+			"patterns": [
+				{
+				"match": "(=)(attack|release|first|legato)\\b",
+				"captures": {
+					"1": { "name": "keyword.operator.assignment.sfz" },
+					"2": { "name": "string.unquoted.sfz" }
+				}
+				},
+				{
+				"match": "(?!=(attack|release|first|legato)).*",
+				"name": "invalid.sfz"
+				}
+			]
+		},
+		"string_balance-mma": {
+			"patterns": [
+				{
+				"match": "(=)(balance|mma)\\b",
+				"captures": {
+					"1": { "name": "keyword.operator.assignment.sfz" },
+					"2": { "name": "string.unquoted.sfz" }
+				}
+				},
+				{
+				"match": "(?!=(balance|mma)).*",
+				"name": "invalid.sfz"
+				}
+			]
+		},
+		"string_current-previous": {
+			"patterns": [
+				{
+				"match": "(=)(current|previous)\\b",
+				"captures": {
+					"1": { "name": "keyword.operator.assignment.sfz" },
+					"2": { "name": "string.unquoted.sfz" }
+				}
+				},
+				{
+				"match": "(?!=(current|previous)).*",
+				"name": "invalid.sfz"
+				}
+			]
+		},
+		"string_fast-normal-time": {
+			"patterns": [
+				{
+				"match": "(=)(fast|normal|time)\\b",
+				"captures": {
+					"1": { "name": "keyword.operator.assignment.sfz" },
+					"2": { "name": "string.unquoted.sfz" }
+				}
+				},
+				{
+				"match": "(?!=(fast|normal|time)).*",
+				"name": "invalid.sfz"
+				}
+			]
+		},
+		"string_forward-backward-alternate": {
+			"patterns": [
+				{
+				"match": "(=)(forward|backward|alternate)\\b",
+				"captures": {
+					"1": { "name": "keyword.operator.assignment.sfz" },
+					"2": { "name": "string.unquoted.sfz" }
+				}
+				},
+				{
+				"match": "(?!=(forward|backward|alternate)).*",
+				"name": "invalid.sfz"
+				}
+			]
+		},
+		"string_forward-reverse": {
+			"patterns": [
+				{
+				"match": "(=)(forward|reverse)\\b",
+				"captures": {
+					"1": { "name": "keyword.operator.assignment.sfz" },
+					"2": { "name": "string.unquoted.sfz" }
+				}
+				},
+				{
+				"match": "(?!=(forward|reverse)).*",
+				"name": "invalid.sfz"
+				}
+			]
+		},
+		"string_gain-power": {
+			"patterns": [
+				{
+				"match": "(=)(gain|power)\\b",
+				"captures": {
+					"1": { "name": "keyword.operator.assignment.sfz" },
+					"2": { "name": "string.unquoted.sfz" }
+				}
+				},
+				{
+				"match": "(?!=(gain|power)).*",
+				"name": "invalid.sfz"
+				}
+			]
+		},
+		"string_loop_mode": {
+			"patterns": [
+				{
+					"match": "(=)(no_loop|one_shot|loop_continuous|loop_sustain)\\b",
+					"captures": {
+						"1": { "name": "keyword.operator.assignment.sfz" },
+						"2": { "name": "string.unquoted.sfz" }
+					}
+				},
+				{
+					"match": "(?!=(no_loop|one_shot|loop_continuous|loop_sustain)).*",
+					"name": "invalid.sfz"
+				}
+			]
+		},
+		"string_lpf-hpf-bpf-brf": {
+			"patterns": [
+				{
+				"match": "(=)(lpf_1p|hpf_1p|lpf_2p|hpf_2p|bpf_2p|brf_2p)\\b",
+				"captures": {
+					"1": { "name": "keyword.operator.assignment.sfz" },
+					"2": { "name": "string.unquoted.sfz" }
+				}
+				},
+				{
+				"match": "(?!=(lpf_1p|hpf_1p|lpf_2p|hpf_2p|bpf_2p|brf_2p)).*",
+				"name": "invalid.sfz"
+				}
+			]
+		},
+		"string_md5": {
+			"patterns": [
+				{
+					"match": "(=)([abcdef0-9]{32})\\b",
+					"captures": {
+						"1": { "name": "keyword.operator.assignment.sfz" },
+						"2": { "name": "string.unquoted.sfz" }
+					}
+				},
+				{
+					"match": "(?!=([abcdef0-9]{32})).*",
+					"name": "invalid.sfz"
+				}
+			]
+		},
+		"string_normal-invert": {
+			"patterns": [
+				{
+				"match": "(=)(normal|invert)\\b",
+				"captures": {
+					"1": { "name": "keyword.operator.assignment.sfz" },
+					"2": { "name": "string.unquoted.sfz" }
+				}
+				},
+				{
+				"match": "(?!=(normal|invert)).*",
+				"name": "invalid.sfz"
+				}
+			]
+		},
+		"string_on-off": {
+			"patterns": [
+				{
+				"match": "(=)(true|false|on|off|0|1)\\b",
+				"captures": {
+					"1": { "name": "keyword.operator.assignment.sfz" },
+					"2": { "name": "string.unquoted.sfz" }
+				}
+				},
+				{
+				"match": "(?!=(true|false|on|off|0|1)).*",
+				"name": "invalid.sfz"
+				}
+			]
+		},
+		"string_note": {
+			"patterns": [
+				{
+					"match": "(=)([cdefgabCDEFGAB]\\#?(-1|[0-9]))\\b",
+					"captures": {
+						"1": { "name": "keyword.operator.assignment.sfz" },
+						"2": { "name": "string.note.sfz" }
+					}
+				},
+				{
+					"match": "(?!=([cdefgabCDEFGAB]\\#?(-1|[0-9]))).*",
+					"name": "invalid.sfz"
+				}
+			]
+		},
+		"string_any_continuous": {
+			"patterns": [
+				{
+					"match": "(=)([^\\s]+)\\b",
+					"captures": {
+						"1": { "name": "keyword.operator.assignment.sfz" },
+						"2": { "name": "string.note.sfz" }
+					}
+				},
+				{
+					"match": "(?!=([^\\s]+)).*",
+					"name": "invalid.sfz"
+				}
+			]
+		}
+	},
+	"scopeName": "source.sfz"
+}

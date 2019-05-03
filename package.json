@@ -1,0 +1,39 @@
+{
+    "name": "vscode-sfz",
+    "displayName": "vscode-sfz",
+    "description": "Visual Studio Code support for the SFZ format",
+    "version": "0.0.1",
+    "author": {
+        "name": "jokela"
+    },
+    "icon": "images/icon128.png",
+    "engines": {
+        "vscode": "^1.33.0"
+    },
+    "categories": [
+        "Programming Languages"
+    ],
+    "contributes": {
+        "languages": [{
+            "id": "sfz",
+            "aliases": ["SFZ", "sfz"],
+            "extensions": [".sfz"],
+            "configuration": "./language-configuration.json"
+        }],
+        "grammars": [{
+            "language": "sfz",
+            "scopeName": "source.sfz",
+            "path": "./syntaxes/sfz.tmLanguage.json"
+        }],
+        "themes": [{
+            "id": "Dark+ for SFZ",
+            "label": "Dark+ for SFZ",
+			"uiTheme": "vs-dark",
+            "path": "./themes/sfz.theme.json"
+        }],
+        "snippets": [{
+            "language": "sfz",
+            "path": "./snippets/sfz.json"
+        }]
+    }
+}
