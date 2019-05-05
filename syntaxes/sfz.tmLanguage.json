@@ -724,7 +724,7 @@
 				},
 				{ "comment": "opcodes: (pitchlfo_depth|pitchlfo_depthccN|pitchlfo_depthchanaft|pitchlfo_depthpolyaft|fillfo_depth|fillfo_depthccN|fillfo_depthchanaft|fillfo_depthpolyaft): (-1200 to 1200 cents)",
 					"name": "meta.opcode.sfz",
-					"begin": "\\b((fillfo|pitchlfo)_((depth(cc(?:\\d{1,3})?)?)|depth(chan|poly)aft))\\b",
+					"begin": "\\b((fillfo|pitchlfo)_((depth((_on)?cc(?:\\d{1,3})?)?)|depth(chan|poly)aft))\\b",
 					"beginCaptures": {
 						"1": { "name": "variable.language.modulation.lfo.$1.sfz" }
 					},
@@ -1060,7 +1060,7 @@
 				},
 				{ "comment": "opcodes: (egN_level|egN_level_onccX): (-1 to 1 float)",
 					"name": "meta.opcode.sfz",
-					"begin": "\\b(eg\\d{2}_level(_oncc(?:\\d{1,3})?)?)\\b",
+					"begin": "\\b((eg\\d{2}_level\\d*)(_oncc(?:\\d{1,3})?)?)\\b",
 					"beginCaptures": {
 						"1": { "name": "variable.language.modulation.envelope-generators.$1.sfz" }
 					},
@@ -1082,7 +1082,7 @@
 				},
 				{ "comment": "opcodes: (egN_time|egN_time_onccX): (0 to 100 seconds)",
 					"name": "meta.opcode.sfz",
-					"begin": "\\b(egN_time|egN_time_onccX)\\b",
+					"begin": "\\b((eg\\d{2}_time\\d*)(_oncc(?:\\d{1,3})?)?)\\b",
 					"beginCaptures": {
 						"1": { "name": "variable.language.modulation.envelope-generators.$1.sfz" }
 					},
@@ -1133,6 +1133,28 @@
 					"end": "\\s|$",
 					"patterns": [
 						{ "include": "#float_0-1" }
+					]
+				},
+				{ "comment": "opcodes: (other eg destinations): (any float)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(eg\\d{2}_((depth_lfo|depthadd_lfo|freq_lfo)|((amplitude|depth|depth_lfo|depthadd_lfo|freq_lfo|pitch|cutoff2?|eq[1-3]freq|eq[1-3]bw|eq[1-3]gain|pan|resonance2?|volume|width)(_oncc(?:\\d{1,3})?)?)))\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.modulation.envelope-generators.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#float_any" }
+					]
+				},
+				{ "comment": "opcodes: (other lfo destinations): (any float)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(lfo\\d{2}_((depth_lfo|depthadd_lfo|freq_lfo)|((amplitude|decim|bitred|depth_lfo|depthadd_lfo|freq_lfo|pitch|cutoff2?|eq[1-3]freq|eq[1-3]bw|eq[1-3]gain|pan|resonance2?|volume|width)(_oncc(?:\\d{1,3})?)?)))\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.modulation.lfo.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#float_any" }
 					]
 				}
 			]
@@ -1575,6 +1597,21 @@
 				},
 				{
 					"match": "(?!(=)((?:-?)(?<!\\.)(4|([0-3])(\\.\\d*)?))\\b)[^\\s]*",
+					"name": "invalid.sfz"
+				}
+			]
+		},
+		"float_neg1-1": {
+			"patterns": [
+				{ 
+					"match": "(=)((?:-?)(?<!\\.)(1|0(\\.\\d*)?))\\b",
+					"captures": {
+						"1": { "name": "keyword.operator.assignment.sfz" },
+						"2": { "name": "constant.numeric.float.sfz" }
+					}
+				},
+				{
+					"match": "(?!(=)((?:-?)(?<!\\.)(1|0(\\.\\d*)?))\\b)[^\\s]*",
 					"name": "invalid.sfz"
 				}
 			]
