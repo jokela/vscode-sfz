@@ -10,13 +10,13 @@
 		{ "include": "#sfz1_performance-parameters" },
 		{ "include": "#sfz1_modulation" },
 		{ "include": "#sfz1_effects" },
-		{ "include": "#sfz2-keywords" },
-		{ "include": "#sfzv2_sound-source" },
-		{ "include": "#sfzv2_instrument-settings" },
-		{ "include": "#sfzv2_region-logic" },
-		{ "include": "#sfzv2_performance-parameters" },
-		{ "include": "#sfzv2_modulation" },
-		{ "include": "#sfzv2_curves" },
+		{ "include": "#sfz2-directives" },
+		{ "include": "#sfz2_sound-source" },
+		{ "include": "#sfz2_instrument-settings" },
+		{ "include": "#sfz2_region-logic" },
+		{ "include": "#sfz2_performance-parameters" },
+		{ "include": "#sfz2_modulation" },
+		{ "include": "#sfz2_curves" },
 		{ "include": "#aria_instrument-settings" },
 		{ "include": "#aria_region-logic" },
 		{ "include": "#aria_performance-parameters" },
@@ -689,26 +689,15 @@
 		},
 		"sfz1_modulation": {
 			"patterns": [
-				{ "comment": "opcodes: (ampeg_vel2sustain|fileg_vel2sustain|ampeg_sustain_onccN): (-100 to 100 percent)",
+				{ "comment": "opcodes: (ampeg_delay_onccN|ampeg_attack_onccN|ampeg_hold_onccN|ampeg_decay_onccN|ampeg_release_onccN|ampeg_vel2delay|ampeg_vel2attack|ampeg_vel2hold|ampeg_vel2decay|ampeg_vel2release|pitcheg_vel2delay|pitcheg_vel2attack|pitcheg_vel2hold|pitcheg_vel2decay|pitcheg_vel2release|fileg_vel2delay|fileg_vel2attack|fileg_vel2hold|fileg_vel2decay|fileg_vel2release): (0 to 100 seconds)",
 					"name": "meta.opcode.sfz",
-					"begin": "\\b(ampeg_vel2sustain|fileg_vel2sustain|ampeg_sustain_oncc(?:\\d{1,3})?)\\b",
+					"begin": "\\b((ampeg|fileg|pitcheg)_(((attack|decay|delay|hold|release|start|sustain)(_oncc(?:\\d{1,3})?)?)|vel2(attack|decay|delay|hold|release|start|sustain)))\\b",
 					"beginCaptures": {
 						"1": { "name": "variable.language.modulation.envelope-generators.$1.sfz" }
 					},
 					"end": "\\s|$",
 					"patterns": [
-						{ "include": "#float_neg100-100" }
-					]
-				},
-				{ "comment": "opcodes: (ampeg_delay_onccN|ampeg_attack_onccN|ampeg_hold_onccN|ampeg_decay_onccN|ampeg_release_onccN|ampeg_vel2delay|ampeg_vel2attack|ampeg_vel2hold|ampeg_vel2decay|ampeg_vel2release|pitcheg_vel2delay|pitcheg_vel2attack|pitcheg_vel2hold|pitcheg_vel2decay|pitcheg_vel2release|fileg_vel2delay|fileg_vel2attack|fileg_vel2hold|fileg_vel2decay|fileg_vel2release): (-100 to 100 seconds)",
-					"name": "meta.opcode.sfz",
-					"begin": "\\b(ampeg_delay_oncc(?:\\d{1,3})?|ampeg_attack_oncc(?:\\d{1,3})?|ampeg_hold_oncc(?:\\d{1,3})?|ampeg_decay_oncc(?:\\d{1,3})?|ampeg_release_oncc(?:\\d{1,3})?|ampeg_vel2delay|ampeg_vel2attack|ampeg_vel2hold|ampeg_vel2decay|ampeg_vel2release|pitcheg_vel2delay|pitcheg_vel2attack|pitcheg_vel2hold|pitcheg_vel2decay|pitcheg_vel2release|fileg_vel2delay|fileg_vel2attack|fileg_vel2hold|fileg_vel2decay|fileg_vel2release)\\b",
-					"beginCaptures": {
-						"1": { "name": "variable.language.modulation.envelope-generators.$1.sfz" }
-					},
-					"end": "\\s|$",
-					"patterns": [
-						{ "include": "#float_neg100-100" }
+						{ "include": "#float_0-100" }
 					]
 				},
 				{ "comment": "opcodes: (pitcheg_depth|fileg_depth|pitcheg_vel2depth|fileg_vel2depth): (-12000 to 12000 cents)",
@@ -722,42 +711,20 @@
 						{ "include": "#int_neg12000-12000" }
 					]
 				},
-				{ "comment": "opcodes: (ampeg_start|ampeg_sustain|pitcheg_start|pitcheg_sustain|fileg_start|fileg_sustain): (0 to 100 percent)",
+				{ "comment": "opcodes: (amplfo_depth|amplfo_depthccN|amplfo_depthchanaft|amplfo_depthpolyaft): (-20 to 20 dB)",
 					"name": "meta.opcode.sfz",
-					"begin": "\\b(ampeg_start|ampeg_sustain|pitcheg_start|pitcheg_sustain|fileg_start|fileg_sustain)\\b",
-					"beginCaptures": {
-						"1": { "name": "variable.language.modulation.envelope-generators.$1.sfz" }
-					},
-					"end": "\\s|$",
-					"patterns": [
-						{ "include": "#float_0-100" }
-					]
-				},
-				{ "comment": "opcodes: (ampeg_delay|ampeg_attack|ampeg_hold|ampeg_decay|ampeg_release|pitcheg_delay|pitcheg_attack|pitcheg_hold|pitcheg_decay|pitcheg_release|fileg_delay|fileg_attack|fileg_hold|fileg_decay|fileg_release): (0 to 100 seconds)",
-					"name": "meta.opcode.sfz",
-					"begin": "\\b(ampeg_delay|ampeg_attack|ampeg_hold|ampeg_decay|ampeg_release|pitcheg_delay|pitcheg_attack|pitcheg_hold|pitcheg_decay|pitcheg_release|fileg_delay|fileg_attack|fileg_hold|fileg_decay|fileg_release)\\b",
-					"beginCaptures": {
-						"1": { "name": "variable.language.modulation.envelope-generators.$1.sfz" }
-					},
-					"end": "\\s|$",
-					"patterns": [
-						{ "include": "#float_0-100" }
-					]
-				},
-				{ "comment": "opcodes: (amplfo_depth|amplfo_depthccN|amplfo_depthchanaft|amplfo_depthpolyaft): (-10 to 10 dB)",
-					"name": "meta.opcode.sfz",
-					"begin": "\\b(amplfo_depth|amplfo_depthcc(?:\\d{1,3})?|amplfo_depthchanaft|amplfo_depthpolyaft)\\b",
+					"begin": "\\b(amplfo_((depth(cc(?:\\d{1,3})?)?)|depth(chan|poly)aft))\\b",
 					"beginCaptures": {
 						"1": { "name": "variable.language.modulation.lfo.$1.sfz" }
 					},
 					"end": "\\s|$",
 					"patterns": [
-						{ "include": "#float_neg10-10" }
+						{ "include": "#float_neg20-20" }
 					]
 				},
 				{ "comment": "opcodes: (pitchlfo_depth|pitchlfo_depthccN|pitchlfo_depthchanaft|pitchlfo_depthpolyaft|fillfo_depth|fillfo_depthccN|fillfo_depthchanaft|fillfo_depthpolyaft): (-1200 to 1200 cents)",
 					"name": "meta.opcode.sfz",
-					"begin": "\\b(pitchlfo_depth|pitchlfo_depthcc(?:\\d{1,3})?|pitchlfo_depthchanaft|pitchlfo_depthpolyaft|fillfo_depth|fillfo_depthcc(?:\\d{1,3})?|fillfo_depthchanaft|fillfo_depthpolyaft)\\b",
+					"begin": "\\b((fillfo|pitchlfo)_((depth(cc(?:\\d{1,3})?)?)|depth(chan|poly)aft))\\b",
 					"beginCaptures": {
 						"1": { "name": "variable.language.modulation.lfo.$1.sfz" }
 					},
@@ -768,7 +735,7 @@
 				},
 				{ "comment": "opcodes: (amplfo_freqccN|amplfo_freqchanaft|amplfo_freqpolyaft|pitchlfo_freqccN|pitchlfo_freqchanaft|pitchlfo_freqpolyaft|fillfo_freqccN|fillfo_freqchanaft|fillfo_freqpolyaft): (-200 to 200 Hz)",
 					"name": "meta.opcode.sfz",
-					"begin": "\\b(amplfo_freqcc(?:\\d{1,3})?|amplfo_freqchanaft|amplfo_freqpolyaft|pitchlfo_freqcc(?:\\d{1,3})?|pitchlfo_freqchanaft|pitchlfo_freqpolyaft|fillfo_freqcc(?:\\d{1,3})?|fillfo_freqchanaft|fillfo_freqpolyaft)\\b",
+					"begin": "\\b((amplfo|fillfo|pitchlfo)_(freq|(cc(?:\\d{1,3})?)?)|freq(chan|poly)aft)\\b",
 					"beginCaptures": {
 						"1": { "name": "variable.language.modulation.lfo.$1.sfz" }
 					},
@@ -779,7 +746,7 @@
 				},
 				{ "comment": "opcodes: (amplfo_delay|amplfo_fade|pitchlfo_delay|pitchlfo_fade|fillfo_delay|fillfo_fade): (0 to 100 seconds)",
 					"name": "meta.opcode.sfz",
-					"begin": "\\b(amplfo_delay|amplfo_fade|pitchlfo_delay|pitchlfo_fade|fillfo_delay|fillfo_fade)\\b",
+					"begin": "\\b((amplfo|fillfo|pitchlfo)_(delay|fade))\\b",
 					"beginCaptures": {
 						"1": { "name": "variable.language.modulation.lfo.$1.sfz" }
 					},
@@ -816,7 +783,7 @@
 				}
 			]
 		},
-		"sfz2-keywords": {
+		"sfz2-directives": {
 			"patterns": [
 				{ "comment": "#define statement",
 					"match": "((\\#define)\\s+((\\$)[^\\s]+)\\s+(.+))\\b",
@@ -844,7 +811,7 @@
 				}
 			]
 		},
-		"sfzv2_sound-source": {
+		"sfz2_sound-source": {
 			"patterns": [
 				{ "comment": "opcodes: (default_path): any string",
 					"name": "meta.opcode.sfz",
@@ -902,7 +869,7 @@
 				}
 			]
 		},
-		"sfzv2_instrument-settings": {
+		"sfz2_instrument-settings": {
 			"patterns": [
 				{ "comment": "opcodes: (octave_offset): (-10 to 10 octaves)",
 					"name": "meta.opcode.sfz",
@@ -960,7 +927,7 @@
 				}
 			]
 		},
-		"sfzv2_region-logic": {
+		"sfz2_region-logic": {
 			"patterns": [
 				{ "comment": "opcodes: (sustain_sw|sostenuto_sw): (on|off)",
 					"name": "meta.opcode.sfz",
@@ -986,7 +953,7 @@
 				}
 			]
 		},
-		"sfzv2_performance-parameters": {
+		"sfz2_performance-parameters": {
 			"patterns": [
 				{ "comment": "opcodes: (volume_onccN): (-144 to 6 dB)",
 					"name": "meta.opcode.sfz",
@@ -1078,7 +1045,99 @@
 				}
 			]
 		},
-		"sfzv2_curves": {
+		"sfz2_modulation": {
+			"patterns": [
+				{ "comment": "opcodes: (egN_(curve|loop|points|sustain)): (positive int)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(eg\\d{2}_(curve|loop|points|sustain))\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.modulation.envelope-generators.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#int_positive" }
+					]
+				},
+				{ "comment": "opcodes: (egN_level|egN_level_onccX): (-1 to 1 float)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(eg\\d{2}_level(_oncc(?:\\d{1,3})?)?)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.modulation.envelope-generators.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#float_neg1-1" }
+					]
+				},
+				{ "comment": "opcodes: (egN_shapeX): (-10 to 10 number)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(eg\\d{2}_shape\\d+)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.modulation.envelope-generators.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#float_neg10-10" }
+					]
+				},
+				{ "comment": "opcodes: (egN_time|egN_time_onccX): (0 to 100 seconds)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(egN_time|egN_time_onccX)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.modulation.envelope-generators.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#float_0-100" }
+					]
+				},
+				{ "comment": "opcodes: (lfoN_wave|lfoN_count|lfoN_freq|lfoN_freq_onccX|lfoN_freq_smoothccX): (positive int)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(lfo\\d{2}_(wave|count|freq_(smooth|step)cc(?:\\d{1,3})?))\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.modulation.lfo.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#int_positive" }
+					]
+				},
+				{ "comment": "opcodes: (lfoN_freq|lfoN_freq_onccN): (-20 to 20 Hz)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(lfo\\d{2}_freq(_oncc(?:\\d{1,3})?)?)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.modulation.lfo.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#float_neg20-20" }
+					]
+				},
+				{ "comment": "opcodes: (lfoN_delay|lfoN_delay_onccX|lfoN_fade|lfoN_fade_onccX): (0 to 100 seconds)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(lfo\\d{2}_(delay|fade)(_oncc(?:\\d{1,3})?)?|count)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.modulation.lfo.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#float_0-100" }
+					]
+				},
+				{ "comment": "opcodes: (lfoN_phase|lfoN_phase_onccX): (0 to 1 number)",
+					"name": "meta.opcode.sfz",
+					"begin": "\\b(lfo\\d{2}_phase(_oncc(?:\\d{1,3})?)?|count)\\b",
+					"beginCaptures": {
+						"1": { "name": "variable.language.modulation.lfo.$1.sfz" }
+					},
+					"end": "\\s|$",
+					"patterns": [
+						{ "include": "#float_0-1" }
+					]
+				}
+			]
+		},
+		"sfz2_curves": {
 			"patterns": [
 				{ "comment": "opcodes: (vN): (0 to 1 number)",
 					"name": "meta.opcode.sfz",
@@ -1471,6 +1530,21 @@
 				},
 				{
 					"match": "(?!=(-(?<!\\.)(96|([1-9]|[1-8][0-9]|9[0-5])(\\.\\d*)?)\\b|\\b(?<!\\.)(24|([0-9]|1[0-9]|2[0-3](\\.\\d*)?)\\b))).*",
+					"name": "invalid.sfz"
+				}
+			]
+		},
+		"float_neg20-20": {
+			"patterns": [
+				{ 
+					"match": "(=)((?:-?)(?<!\\.)(20|(1?[0-9])(\\.\\d*)?))\\b",
+					"captures": {
+						"1": { "name": "keyword.operator.assignment.sfz" },
+						"2": { "name": "constant.numeric.float.sfz" }
+					}
+				},
+				{
+					"match": "(?!(=)((?:-?)(?<!\\.)(20|(1?[0-9])(\\.\\d*)?))\\b)[^\\s]*",
 					"name": "invalid.sfz"
 				}
 			]
