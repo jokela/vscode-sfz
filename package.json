@@ -2,8 +2,8 @@
     "name": "vscode-sfz",
     "displayName": "vscode-sfz",
     "description": "SFZ format support for Visual Studio Code",
-    "version": "0.0.1",
-	"license": "MIT",
+    "version": "0.0.2",
+    "license": "MIT",
     "publisher": "jokela",
     "author": {
         "name": "Arne Jokela",
