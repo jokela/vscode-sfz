@@ -1,0 +1,26 @@
+{
+	"Configure tmLanguage.json Opcode": {
+		"scope": "json",
+		"prefix": "opcode",
+		"body": [
+			"{ \"comment\": \"opcodes: (${1:opcodes}): (${2:min} to ${3:max} ${4:units})\",",
+			"\t\"name\": \"meta.opcode.sfz\",",
+			"\t\"begin\": \"\\\\\\\\b($1)\\\\\\\\b\",",
+			"\t\"beginCaptures\": {",
+			"\t\t\"1\": { \"name\": \"variable.language.${5:type.category}.\\$1.sfz\" }",
+			"\t},",
+			"\t\"end\": \"\\\\\\\\s|\\$\",",
+			"\t\"patterns\": [",
+			"\t\t{ \"include\": \"#${6:type}_$0$2-$3\" }",
+			"\t]",
+			"}"
+		],
+		"description": "opcode tmLanguage grammar block"
+	},
+	"Substitute regex for onccN": {
+		"scope": "json",
+		"prefix" : "onccN",
+		"body": ["oncc(?:\\\\\\\\d{1,3})?"],
+		"description": "oncc(?:\\\\\\\\d{1,3})?"
+	}
+}

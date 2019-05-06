@@ -42,9 +42,15 @@
 			"uiTheme": "vs-dark",
             "path": "./themes/sfz.theme.json"
         }],
-        "snippets": [{
-            "language": "sfz",
-            "path": "./snippets/sfz.json"
-        }]
+        "snippets": [
+            {
+                "language": "sfz",
+                "path": "./snippets/sfz.json"
+            },
+            {
+                "language": "json",
+                "path": "./snippets/json.json"
+            }
+        ]
     }
 }
