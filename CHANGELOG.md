@@ -7,7 +7,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
-## [0.0.1] - 2019-05-03
+## [0.1.0] - 2019-05-06
 ### Added
-- Initial version with syntax highlighting, parameter validation, and header snippets.
+- Initial version with syntax highlighting, parameter validation, and snippets.
 - This Visual Studio Code extension provides support for the SFZ format.

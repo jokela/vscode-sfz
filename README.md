@@ -34,7 +34,5 @@ Provides [SFZ format](https://sfzformat.com/) support for [Visual Studio Code](h
 
 ## Release Notes
 
-### 0.0.2 2019-05-05
-- Added more modulation destinations.
-### 0.0.1 2019-05-03
-- Initial version with syntax highlighting, parameter validation, and header snippets.
+### 0.1.0 2019-05-06
+- Initial version.
