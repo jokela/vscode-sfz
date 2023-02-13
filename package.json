@@ -28,7 +28,7 @@
         "languages": [{
             "id": "sfz",
             "aliases": ["SFZ", "sfz"],
-            "extensions": [".sfz"],
+            "extensions": [".sfz", ".sfzh"],
             "configuration": "./language-configuration.json"
         }],
         "grammars": [{
